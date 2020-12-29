@@ -10,8 +10,8 @@ module.exports = {
   attributes: {
     name: { type: 'string' },
     alias: {
-      type: 'json',
-      columnType: 'array' }
+      type: 'json' }
+
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
