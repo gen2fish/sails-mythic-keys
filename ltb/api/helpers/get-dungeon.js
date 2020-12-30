@@ -42,11 +42,12 @@ module.exports = {
 
 findDungeon = async function(arr) {
 
-  var dungeonList = await Dungeons.find()
+  var dungeonList = await WowDungeons.find()
   for (d of dungeonList) {
+
     for ( a of arr){
       if (d.alias.includes(a.toLowerCase())) {
-        return d.name
+        return d
       }
     }
   }
@@ -61,7 +62,7 @@ findLevel = async function(arr) {
   var numb = search.match(/\d/g);
 
   try {
-   numb = numb.join("");
+    numb = numb.join("");
   } catch {
     numb = undefined
   }

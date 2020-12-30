@@ -14,7 +14,7 @@ module.exports = {
     },
     discordUID: {
       type: 'json',
-      description: 'Discord Message'
+      description: 'Discord Message Author'
     }
   },
 
@@ -30,46 +30,76 @@ module.exports = {
 
   fn: async function (inputs) {
 
-    // TODO
-    /*
-    Get user
-    add if needed
-    set realm
-    return success or fail
-    */
-    args = inputs.args
-    rtnMsg = ''
-    if (args[0] == 'set'){
-      char = args[1]
-    } else {
-      char = args[0]
+    switch(inputs.args[0]) {
+      case "set":
+        return await set(inputs)
+        break;
+      case "get":
+        return await get(inputs)
+        break;
+      default:
+        return `Unknown parameter ${inputs.args[0]}. Valid entries include \`set get\``
     }
 
-    var discordUser = await DiscordUsers.findOne({
-      userID: inputs.discordUID.id
-    })
 
-    if (discordUser == undefined){
-      discordUser = await DiscordUsers.create({
-        userID: inputs.discordUID.id,
-        userName: inputs.discordUID.username
-      }).fetch();
-    }
+  }
+};
 
-    var wowChar = await WowCharacters.findOne({
-      nameSlug: char.toLowerCase()
-    })
+get = async function (inputs){
+  const discordUID = inputs.discordUID
+  const discProfile = await DiscordUsers.findOne({ userID: discordUID.id })
 
-    if ( wowChar == undefined ) {
-      return `No character by the name ${char} found.`
-    }
+  if (!discProfile){
+    return `Sorry <@${discordUID.id}>. I coudln't find any record of your defaults.`
+  } else {
+    sails.log.info(discProfile)
+    return `I found you <@${discordUID.id}>. Your default realm is ${discProfile.defaultRealm} and your default character is ${discProfile.defaultCharacter}`
 
-    await DiscordUsers.update(discordUser).set({
-      defaultCharacter: wowChar.nameSlug
-    })
-
-    return `Default Character set to ${wowChar.name}`
   }
 
+
+};
+
+set = async function (inputs){
+  const discordUID = inputs.discordUID
+  var inputCharacter
+  var inputRealm = sails.defaultrealm
+
+  for ( a of inputs.args ) {
+    if ( a != 'set' ){
+      if ( a.includes("-")){
+        splite = a.split("-")
+
+        inputCharacter = splite[0]
+        inputRealm = splite[1]
+
+      } else {
+        inputCharacter = a
+      }
+
+    }
+  }
+
+  // Is that user in guild?
+  if ( !await WowCharacters.findOne({ nameSlug: inputCharacter.toLowerCase(), realm: inputRealm.toLowerCase() }) ) {
+    return `Could not find a character named ${inputCharacter}-${inputRealm} in guild.`
+  }
+
+  // Discord Profile exist? create if needed
+  if ( !await DiscordUsers.findOne({ userID: discordUID.id }) ) {
+    await DiscordUsers.create({
+      userID: discordUID.id,
+      userName: discordUID.username
+    })
+  }
+
+  var defaultChar = `${inputCharacter.toLowerCase()}-${inputRealm.toLowerCase()}`
+  sails.log.info(defaultChar)
+  // Character exists and Discord profile created if needed
+  await DiscordUsers.update({ userID: discordUID.id }).set({
+    defaultCharacter: defaultChar
+  })
+
+  return `<@${discordUID.id}>, Saved! Your default character is now ${inputCharacter}`
 
 };

@@ -8,7 +8,18 @@
 module.exports = {
 
   attributes: {
-
+    dungeonID: {
+      type: 'number'
+    },
+    discordID: {
+      type: 'number'
+    },
+    wowCharacter: {
+      type: 'string'
+    },
+    keyLevel: {
+      type: 'number'
+    }
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
@@ -26,4 +37,3 @@ module.exports = {
   },
 
 };
-

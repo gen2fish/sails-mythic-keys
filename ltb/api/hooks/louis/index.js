@@ -4,7 +4,7 @@ module.exports = function discordBot(sails) {
       const Discord = require('discord.js')
       const bot = new Discord.Client();
 
-      const TOKEN = ''
+      const TOKEN = process.env.API_DISCORD_TOKEN
 
       bot.login(TOKEN)
       bot.commands = new Discord.Collection();
@@ -36,6 +36,7 @@ module.exports = function discordBot(sails) {
       });
 
       sails.discordbot = bot
+      sails.defaultrealm = 'Bloodhoof'
     }
   }
 }

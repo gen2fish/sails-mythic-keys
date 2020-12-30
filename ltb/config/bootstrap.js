@@ -26,41 +26,5 @@ module.exports.bootstrap = async function() {
   //   // etc.
   // ]);
   // ```
-  await Dungeons.createEach([
-    {
-      name: 'Necrotic Wake',
-      alias: [
-        'nw',
-        'necro',
-        'wake'
-      ]
-    },
-    {
-      name: 'Spires of Ascension',
-      alias: [
-        'spires',
-        'spire',
-        'soa'
-      ]
-    },
-    {
-      name: 'De Other Side',
-      alias: [
-        'dos',
-        'de',
-        'side',
-        'other'
-      ]
-    },
-    {
-      name: 'Halls of Atonement',
-      alias: [
-        'ha',
-        'halls',
-        'hall',
-        'hoa'
-      ]
-    },
 
-  ]);
 };

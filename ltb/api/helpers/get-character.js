@@ -33,42 +33,44 @@ module.exports = {
     const character = inputs.args
 
 
+    var defaultChar = undefined;
+    var inputChar = undefined;
+    var defaultRealm = sails.defaultrealm
+
     var findUser = await DiscordUsers.findOne({
       userID: discordUser
     })
 
-
-    var char = undefined
-
     if ( findUser != undefined ) {
-      char = await WowCharacters.findOne({
+      defaultRealm = findUser.defaultRealm
+      defaultChar = await WowCharacters.findOne({
         nameSlug: findUser.defaultCharacter
       })
 
-    } else {
-      char = await WowCharacters.findOne({
-        nameSlug: discordName.toLowerCase()
-      })
-
-
     }
 
-    if ( char == undefined ) {
+    for ( c of character ){
+      var search = c
+      if (c.includes("-")) {
+        search = c.split("-")[0]
+      }
 
-      for ( c of character ){
-        wowChar = await WowCharacters.findOne({
-          nameSlug: c.toLowerCase()
-        })
-        if ( wowChar != undefined ) {
-          char = wowChar
-
-
-        }
+      wowChar = await WowCharacters.findOne({
+        nameSlug: search.toLowerCase(),
+        realm: defaultRealm.toLowerCase()
+      })
+      if ( wowChar != undefined ) {
+        inputChar = wowChar
       }
     }
-    // Send back the result through the success exit.
 
-    return char;
+    if ( inputChar != undefined ){
+      return inputChar
+    } else if ( defaultChar != undefined ) {
+      return defaultChar
+    } else {
+      return undefined;
+    }
 
   }
 

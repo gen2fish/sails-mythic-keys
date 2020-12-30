@@ -10,7 +10,7 @@ module.exports = {
 
     } else {
 
-      var searchRealm = 'bloodhoof'
+      var searchRealm = sails.defaultrealm
       var searchUser = args[0]
       const discordUser = await DiscordUsers.findOne({
         userID: msg.author.id

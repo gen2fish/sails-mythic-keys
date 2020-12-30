@@ -23,15 +23,22 @@ module.exports = {
 
   fn: async function (inputs) {
 
-    const battleNetWrapper = require('battlenet-api-wrapper');
+    await sails.helpers.blizzard.getDungeons()
+    const playableClassesIndex = await WowClasses.find();
+    const playableRacesIndex = await WowRaces.find();
 
-    const clientId = '';
-    const clientSecret = '';
+    var playableClasses = {}
+    var playableRaces = {}
 
-    const bnw = new battleNetWrapper();
-    await bnw.init(clientId, clientSecret);
+    for ( r of playableRacesIndex ){
+      playableRaces[r.wowID] = r.name
+    }
 
-    var characters = await bnw.WowProfileData.getGuildRoster(realmSlug='bloodhoof',guildName='casual-hex')
+    for ( c of playableClassesIndex ){
+      playableClasses[c.wowID] = c.name
+    }
+
+    var characters = await sails.blizz.WowProfileData.getGuildRoster(realmSlug=sails.defaultrealm.toLowerCase(),guildName='casual-hex')
 
     var maxChars = []
 
@@ -42,8 +49,8 @@ module.exports = {
           name: chars.character.name,
           nameSlug: chars.character.name.toLowerCase(),
           realm: chars.character.realm.slug,
-          // race: raiderio.race,
-          // class: raiderio.class,
+          class: playableClasses[chars.character.playable_class.id],
+          race: playableRaces[chars.character.playable_race.id]
           // score: raiderio.score
         }
 
@@ -53,19 +60,10 @@ module.exports = {
         })
 
         if (dbChar == undefined) {
-          await WowCharacters.create({
-            name: char.name,
-            nameSlug: char.name.toLowerCase(),
-            realm: char.realm,
-            // class: char.class,
-            // race: char.race,
-            // scoreMythic: char.score
-          })
-          sails.log.info(`Created: ${char.name}`)
+          await WowCharacters.create(char)
+
         } else {
           await WowCharacters.update(dbChar).set(char)
-          sails.log.info(`Updated: ${char.name}`)
-
         }
 
         // if (dbChar.scoreMythic != char.score) {

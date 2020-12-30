@@ -30,7 +30,7 @@ module.exports = {
 
   fn: async function (inputs) {
     realmList = [
-      'bloodhoof',
+      sails.defaultrealm.toLowerCase(),
       'duskwood'
     ]
     // TODO
