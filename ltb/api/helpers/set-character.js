@@ -37,6 +37,9 @@ module.exports = {
       case "get":
         return await get(inputs)
         break;
+      case "unclaim":
+        return await unclaim(inputs)
+        break;
       default:
         return `Unknown parameter ${inputs.args[0]}. Valid entries include \`set get\``
     }
@@ -46,7 +49,7 @@ module.exports = {
 };
 
 get = async function (inputs){
-  const discordUID = inputs.discordUID
+  const discordUID = inputs.discordUID.author
   const discProfile = await DiscordUsers.findOne({ userID: discordUID.id })
 
   if (!discProfile){
@@ -60,8 +63,15 @@ get = async function (inputs){
 
 };
 
-set = async function (inputs){
+unclaim = async function (inputs) {
+  const Discord = require('discord.js')
   const discordUID = inputs.discordUID
+
+  return "BORF"
+};
+
+set = async function (inputs){
+  const discordUID = inputs.discordUID.author
   var inputCharacter
   var inputRealm = sails.defaultrealm
 
@@ -70,8 +80,8 @@ set = async function (inputs){
       if ( a.includes("-")){
         splite = a.split("-")
 
-        inputCharacter = splite[0]
-        inputRealm = splite[1]
+        inputCharacter, inputRealm = splite
+
 
       } else {
         inputCharacter = a
@@ -80,10 +90,27 @@ set = async function (inputs){
     }
   }
 
-  // Is that user in guild?
-  if ( !await WowCharacters.findOne({ nameSlug: inputCharacter.toLowerCase(), realm: inputRealm.toLowerCase() }) ) {
-    return `Could not find a character named ${inputCharacter}-${inputRealm} in guild.`
+  if ( inputCharacter === undefined ){
+    inputCharacter = discordUID.username.toLowerCase()
   }
+
+  // Does that user Exist
+  var wowExist = await sails.helpers.blizzard.getCharacter(inputCharacter,inputRealm)
+  if ( wowExist === undefined) {
+      return `Could not find a character named ${inputCharacter} on ${inputRealm}.`
+  }
+
+  wowExist = await WowCharacters.findOne(wowExist)
+
+  if ( wowExist.discordUser === undefined ) {
+    wowExist = await WowCharacters.update({
+      wowID: wowExist.wowID
+    }).set({ discordUser: discordUID.id})
+  } else if ( wowExist.discordUser != discordUID.id ) {
+    return `Sorry <@${discordUID.id}>, ${wowExist.name} has been claimed by another Discord user. If you feel this is wrong. Have an administrator run \`!character unclaim ${wowExist.name}-${inputRealm}\``
+  }
+
+
 
   // Discord Profile exist? create if needed
   if ( !await DiscordUsers.findOne({ userID: discordUID.id }) ) {
@@ -93,13 +120,14 @@ set = async function (inputs){
     })
   }
 
-  var defaultChar = `${inputCharacter.toLowerCase()}-${inputRealm.toLowerCase()}`
-  sails.log.info(defaultChar)
+  sails.log.info(inputCharacter)
+  sails.log.info(inputRealm)
+  var defaultChar = `${wowExist.name.toLowerCase()}-${inputRealm.toLowerCase()}`
+
   // Character exists and Discord profile created if needed
   await DiscordUsers.update({ userID: discordUID.id }).set({
     defaultCharacter: defaultChar
   })
-
-  return `<@${discordUID.id}>, Saved! Your default character is now ${inputCharacter}`
+  return `<@${discordUID.id}>, Saved! Your default character is now ${wowExist.name}`
 
 };

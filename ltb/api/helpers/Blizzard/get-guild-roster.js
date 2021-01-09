@@ -37,33 +37,32 @@ module.exports = {
     for ( c of playableClassesIndex ){
       playableClasses[c.wowID] = c.name
     }
-
+    sails.log.info(playableRaces)
     var characters = await sails.blizz.WowProfileData.getGuildRoster(realmSlug=sails.defaultrealm.toLowerCase(),guildName='casual-hex')
 
     var maxChars = []
 
     for (chars of characters.members){
       if (chars.character.level == 60){
-
+        sails.log.info(chars.character.id)
         var char = {
           name: chars.character.name,
+          wowID: chars.character.id,
           nameSlug: chars.character.name.toLowerCase(),
           realm: chars.character.realm.slug,
           class: playableClasses[chars.character.playable_class.id],
-          race: playableRaces[chars.character.playable_race.id]
-          // score: raiderio.score
+          race: playableRaces[chars.character.playable_race.id],
+          guild: 'Casual Hex'
         }
 
         var dbChar = await WowCharacters.findOne({
-          name: char.name,
-          realm: char.realm
+          wowID: char.wowID
         })
 
         if (dbChar == undefined) {
           await WowCharacters.create(char)
-
         } else {
-          await WowCharacters.update(dbChar).set(char)
+          await WowCharacters.update({ wowID: char.id }).set(char)
         }
 
         // if (dbChar.scoreMythic != char.score) {

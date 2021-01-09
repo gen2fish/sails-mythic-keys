@@ -28,7 +28,14 @@ module.exports = {
     },
     discordUser: {
       type: 'string'
+    },
+    guild: {
+      type: 'string'
+    },
+    wowID: {
+      type: 'number'
     }
+
     //  ╔═╗╦═╗╦╔╦╗╦╔╦╗╦╦  ╦╔═╗╔═╗
     //  ╠═╝╠╦╝║║║║║ ║ ║╚╗╔╝║╣ ╚═╗
     //  ╩  ╩╚═╩╩ ╩╩ ╩ ╩ ╚╝ ╚═╝╚═╝
