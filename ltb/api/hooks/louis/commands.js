@@ -4,5 +4,6 @@ module.exports = {
   // roster: require('./commands/roster.js'),
   score: require('./commands/score.js'),
   key: require('./commands/key.js'),
-  character: require('./commands/character.js')
+  character: require('./commands/character.js'),
+  ak: require('./commands/astral.js')
 }
